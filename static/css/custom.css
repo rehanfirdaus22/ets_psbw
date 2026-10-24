@@ -1,0 +1,4 @@
+/* custom.css - penyesuaian kecil di atas template SB Admin 2 */
+.chart-bar { position: relative; height: 18rem; }
+.table td, .table th { vertical-align: middle; }
+#accordionBantuan .btn-link { color: #4e73df; font-weight: 600; }

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Profil &amp; Bantuan{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4 text-gray-800">Profil &amp; Bantuan</h1>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Identitas Kelompok</h6></div>
+            <div class="card-body">
+                <p class="mb-1"><strong>{{ kelompok.nama }}</strong></p>
+                <p class="text-gray-600 small">{{ kelompok.mata_kuliah }}</p>
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Nama</th><th>NRP</th></tr></thead>
+                    <tbody>
+                        {% for a in kelompok.anggota %}
+                        <tr><td>{{ a.nama }}</td><td>{{ a.nrp }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Alur Penggunaan (User Flow)</h6></div>
+            <div class="card-body">
+                <ol class="mb-0 pl-3">
+                    <li class="mb-2">Admin membuka <a href="{{ url_for('dashboard') }}">Dashboard</a> untuk melihat ringkasan stok dan peringatan restok.</li>
+                    <li class="mb-2">Admin membuka <a href="{{ url_for('barang') }}">Daftar Barang</a>, lalu mencari atau mengurutkan data.</li>
+                    <li class="mb-2">Barang baru dicatat lewat <a href="{{ url_for('tambah_barang') }}">Tambah Barang</a>, atau data lama diubah lewat tombol Edit.</li>
+                    <li class="mb-2">Barang yang sudah tidak dijual dihapus lewat tombol Hapus dan konfirmasi di modal.</li>
+                    <li>Kembali ke Dashboard untuk memastikan angka ringkasan sudah diperbarui.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6" id="bantuan">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Bantuan (FAQ)</h6></div>
+            <div class="card-body">
+                <div class="accordion" id="accordionBantuan">
+                    {% set faq = [
+                        ('Bagaimana menambah barang baru?', 'Buka menu Data Barang, pilih Tambah Barang, isi semua kolom, lalu klik Simpan.'),
+                        ('Kapan sebuah barang dianggap menipis?', 'Saat stok sama dengan atau lebih kecil dari stok minimum yang diisi pada formulir barang.'),
+                        ('Apakah data tersimpan permanen?', 'Belum. Ini prototipe, sehingga data hanya disimpan di memori server dan kembali seperti awal saat server dijalankan ulang.'),
+                        ('Bagaimana mencari barang?', 'Gunakan kotak pencarian di bagian atas halaman, atau kolom Cari di atas tabel pada halaman Daftar Barang.')
+                    ] %}
+                    {% for tanya, jawab in faq %}
+                    <div class="card">
+                        <div class="card-header p-0" id="judul{{ loop.index }}">
+                            <button class="btn btn-link btn-block text-left text-decoration-none {% if not loop.first %}collapsed{% endif %}" type="button"
+                                    data-toggle="collapse" data-target="#faq{{ loop.index }}"
+                                    aria-expanded="{{ 'true' if loop.first else 'false' }}" aria-controls="faq{{ loop.index }}">
+                                {{ tanya }}
+                            </button>
+                        </div>
+                        <div id="faq{{ loop.index }}" class="collapse {% if loop.first %}show{% endif %}" aria-labelledby="judul{{ loop.index }}" data-parent="#accordionBantuan">
+                            <div class="card-body small">{{ jawab }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

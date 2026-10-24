@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ judul }}{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">{{ judul }}</h1>
+    <a href="{{ url_for('barang') }}" class="btn btn-sm btn-secondary shadow-sm">
+        <i class="fas fa-arrow-left fa-sm"></i> Kembali ke Daftar
+    </a>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Formulir Data Barang</h6></div>
+    <div class="card-body">
+        <!-- novalidate: validasi dilakukan di server (app.py) agar pesan errornya terlihat -->
+        <form method="post" action="{{ aksi }}" novalidate>
+            <div class="form-group">
+                <label for="nama">Nama barang</label>
+                <input type="text" class="form-control" id="nama" name="nama" value="{{ item.get('nama', '') }}" placeholder="Contoh: Penghapus Putih">
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="kategori">Kategori</label>
+                    <select class="form-control" id="kategori" name="kategori">
+                        <option value="">-- Pilih kategori --</option>
+                        {% for k in kategori %}
+                        <option value="{{ k }}" {% if item.get('kategori') == k %}selected{% endif %}>{{ k }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="harga">Harga satuan (Rp)</label>
+                    <input type="number" class="form-control" id="harga" name="harga" min="1" value="{{ item.get('harga', '') }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="stok">Stok saat ini</label>
+                    <input type="number" class="form-control" id="stok" name="stok" min="0" value="{{ item.get('stok', '') }}">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="stok_min">Stok minimum</label>
+                    <input type="number" class="form-control" id="stok_min" name="stok_min" min="0" value="{{ item.get('stok_min', '') }}">
+                    <small class="form-text text-muted">Barang dianggap menipis jika stok sama dengan atau di bawah angka ini.</small>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save fa-sm"></i> Simpan</button>
+            <a href="{{ url_for('barang') }}" class="btn btn-light">Batal</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

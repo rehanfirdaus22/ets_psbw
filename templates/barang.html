@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Daftar Barang{% endblock %}
+
+{% block head_extra %}
+<link href="{{ url_for('static', filename='vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Daftar Barang</h1>
+    <a href="{{ url_for('tambah_barang') }}" class="btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Barang
+    </a>
+</div>
+
+{% if q %}
+<div class="alert alert-info">
+    Hasil pencarian untuk <strong>"{{ q }}"</strong>: {{ daftar|length }} barang ditemukan.
+    <a href="{{ url_for('barang') }}" class="alert-link ml-2">Tampilkan semua</a>
+</div>
+{% endif %}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Data Inventaris</h6></div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="tabelBarang" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Kode</th><th>Nama Barang</th><th>Kategori</th>
+                        <th class="text-right">Stok</th><th class="text-right">Harga</th><th>Status</th><th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in daftar %}
+                    <tr>
+                        <td>{{ b.kode }}</td>
+                        <td>{{ b.nama }}</td>
+                        <td>{{ b.kategori }}</td>
+                        <td class="text-right">{{ b.stok }}</td>
+                        <td class="text-right">{{ b.harga|rupiah }}</td>
+                        <td>
+                            {% if b.stok <= b.stok_min %}<span class="badge badge-danger">Menipis</span>
+                            {% else %}<span class="badge badge-success">Aman</span>{% endif %}
+                        </td>
+                        <td class="text-nowrap">
+                            <a href="{{ url_for('edit_barang', barang_id=b.id) }}" class="btn btn-warning btn-sm" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" title="Hapus"
+                                    data-toggle="modal" data-target="#hapusModal"
+                                    data-nama="{{ b.nama }}"
+                                    data-action="{{ url_for('hapus_barang', barang_id=b.id) }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Modal konfirmasi hapus: form action diisi oleh inventaris.js -->
+<div class="modal fade" id="hapusModal" tabindex="-1" role="dialog" aria-labelledby="hapusModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hapusModalLabel">Hapus barang?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Tutup"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">Barang <strong id="namaHapus"></strong> akan dihapus dari inventaris.</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
+                <form id="formHapus" method="post" action="">
+                    <button class="btn btn-danger" type="submit">Ya, hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/inventaris.js') }}"></script>
+{% endblock %}

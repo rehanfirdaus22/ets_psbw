@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="{{ app_info.deskripsi }}">
+    <title>{% block title %}Dashboard{% endblock %} | {{ app_info.nama }}</title>
+
+    <!-- Semua aset lokal dipanggil lewat url_for('static', ...) -->
+    <link href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/sb-admin-2.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    {% block head_extra %}{% endblock %}
+</head>
+
+<body id="page-top">
+<div id="wrapper">
+
+    <!-- ===== Sidebar ===== -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url_for('dashboard') }}">
+            <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-boxes"></i></div>
+            <div class="sidebar-brand-text mx-3">{{ app_info.nama }}</div>
+        </a>
+
+        <hr class="sidebar-divider my-0">
+
+        <li class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+            <a class="nav-link" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-fw fa-tachometer-alt"></i><span>Dashboard</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading">Manajemen Data</div>
+
+        {% set menu_barang = request.endpoint in ['barang', 'tambah_barang', 'edit_barang'] %}
+        <li class="nav-item {% if menu_barang %}active{% endif %}">
+            <a class="nav-link {% if not menu_barang %}collapsed{% endif %}" href="#" data-toggle="collapse"
+               data-target="#collapseBarang" aria-expanded="{{ 'true' if menu_barang else 'false' }}" aria-controls="collapseBarang">
+                <i class="fas fa-fw fa-box-open"></i><span>Data Barang</span>
+            </a>
+            <div id="collapseBarang" class="collapse {% if menu_barang %}show{% endif %}" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Pilih halaman:</h6>
+                    <a class="collapse-item {% if request.endpoint in ['barang', 'edit_barang'] %}active{% endif %}" href="{{ url_for('barang') }}">Daftar Barang</a>
+                    <a class="collapse-item {% if request.endpoint == 'tambah_barang' %}active{% endif %}" href="{{ url_for('tambah_barang') }}">Tambah Barang</a>
+                </div>
+            </div>
+        </li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading">Pendukung</div>
+
+        <li class="nav-item {% if request.endpoint == 'profil' %}active{% endif %}">
+            <a class="nav-link" href="{{ url_for('profil') }}">
+                <i class="fas fa-fw fa-life-ring"></i><span>Profil &amp; Bantuan</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider d-none d-md-block">
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" id="sidebarToggle" type="button" aria-label="Lipat sidebar"></button>
+        </div>
+    </ul>
+    <!-- ===== End Sidebar ===== -->
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+
+            <!-- ===== Topbar ===== -->
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3" type="button" aria-label="Buka menu">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <!-- Pencarian: mengirim GET ke route /barang?q=... -->
+                <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search"
+                      action="{{ url_for('barang') }}" method="get">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control bg-light border-0 small"
+                               placeholder="Cari nama barang..." aria-label="Cari" value="{{ request.args.get('q', '') }}">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit"><i class="fas fa-search fa-sm"></i></button>
+                        </div>
+                    </div>
+                </form>
+
+                <ul class="navbar-nav ml-auto">
+
+                    <!-- Notifikasi stok menipis (data dari context processor) -->
+                    <li class="nav-item dropdown no-arrow mx-1">
+                        <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bell fa-fw"></i>
+                            {% if notif_stok %}<span class="badge badge-danger badge-counter">{{ notif_stok|length }}</span>{% endif %}
+                        </a>
+                        <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                            <h6 class="dropdown-header">Peringatan Stok</h6>
+                            {% for b in notif_stok[:4] %}
+                            <a class="dropdown-item d-flex align-items-center" href="{{ url_for('edit_barang', barang_id=b.id) }}">
+                                <div class="mr-3">
+                                    <div class="icon-circle bg-warning"><i class="fas fa-exclamation-triangle text-white"></i></div>
+                                </div>
+                                <div>
+                                    <div class="small text-gray-500">{{ b.kode }}</div>
+                                    <span class="font-weight-bold">{{ b.nama }}</span>
+                                    <div class="small">Sisa {{ b.stok }} (minimum {{ b.stok_min }})</div>
+                                </div>
+                            </a>
+                            {% else %}
+                            <span class="dropdown-item text-center small text-gray-500 py-3">Semua stok aman.</span>
+                            {% endfor %}
+                            <a class="dropdown-item text-center small text-gray-500" href="{{ url_for('dashboard') }}">Lihat di Dashboard</a>
+                        </div>
+                    </li>
+
+                    <div class="topbar-divider d-none d-sm-block"></div>
+
+                    <!-- Menu pengguna -->
+                    <li class="nav-item dropdown no-arrow">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">Admin Gudang</span>
+                            <img class="img-profile rounded-circle" src="{{ url_for('static', filename='img/undraw_profile.svg') }}" alt="Foto profil">
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                            <a class="dropdown-item" href="{{ url_for('profil') }}">
+                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>Profil
+                            </a>
+                            <a class="dropdown-item" href="{{ url_for('profil') }}#bantuan">
+                                <i class="fas fa-question-circle fa-sm fa-fw mr-2 text-gray-400"></i>Bantuan
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#tentangModal">
+                                <i class="fas fa-info-circle fa-sm fa-fw mr-2 text-gray-400"></i>Tentang Aplikasi
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+            <!-- ===== End Topbar ===== -->
+
+            <div class="container-fluid">
+
+                <!-- Pesan flash dari Flask -->
+                {% with pesan_flash = get_flashed_messages(with_categories=true) %}
+                    {% for kategori, pesan in pesan_flash %}
+                    <div class="alert alert-{{ kategori }} alert-dismissible fade show" role="alert">
+                        {{ pesan }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Tutup"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    {% endfor %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>{{ app_info.nama }} &copy; {{ app_info.tahun }} &middot; Template SB Admin 2 (MIT)</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<a class="scroll-to-top rounded" href="#page-top"><i class="fas fa-angle-up"></i></a>
+
+<!-- Modal: Tentang Aplikasi -->
+<div class="modal fade" id="tentangModal" tabindex="-1" role="dialog" aria-labelledby="tentangModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tentangModalLabel">Tentang {{ app_info.nama }}</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Tutup"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-1"><strong>{{ app_info.deskripsi }}</strong></p>
+                <p class="mb-0 small text-gray-600">Versi {{ app_info.versi }}. Dibangun dengan Flask dan template SB Admin 2.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block modals %}{% endblock %}
+
+<script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sb-admin-2.min.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
