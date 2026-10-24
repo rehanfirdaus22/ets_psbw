@@ -22,7 +22,8 @@ Tidak perlu instalasi tambahan.
 
 ## Download
 
-[Unduh Disini] 
+[Unduh Disini] (https://github.com/rehanfirdaus22/ets_psbw/archive/refs/heads/main.zip)
+
 
 ## Catatan
 
