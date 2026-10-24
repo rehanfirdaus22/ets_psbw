@@ -13,7 +13,7 @@ python app.py
 
 Buka http://127.0.0.1:5000 di browser.
 
-Catatan: Google Fonts (Nunito) dimuat dari internet. Tanpa internet aplikasi tetap jalan, hanya jenis hurufnya berganti.
+
 
 ## Struktur proyek
 
